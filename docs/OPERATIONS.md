@@ -59,7 +59,6 @@ frontend/src/app/
   features/      login, agenda y catálogos
   layouts/       navegación y sesión
   shared/        formularios de edición
-scripts/         verificación e integración
 docs/API.md      endpoints y reglas
 ```
 
@@ -84,17 +83,11 @@ En otra terminal, desde frontend: `npm ci` y `npm start`. Angular abre http://lo
 
 ## Pruebas
 
-Cada construcción Docker ejecuta Maven verify, Angular build y Vitest. Para la integración real en contenedores y volumen separados:
-
-```powershell
-./scripts/verify.ps1
-```
-
-Alternativa manual:
+Cada construcción Docker ejecuta Maven verify, Angular build y Vitest. La integración HTTP está implementada con JUnit y el cliente HTTP de Java 21. Para probarla contra contenedores y volumen separados, con Java 21 y Maven instalados:
 
 ```powershell
 docker compose -p filo-barberia-test -f compose.yaml -f compose.test.yaml up --build -d --wait --wait-timeout 180
-python scripts/integration.py
+mvn -f backend/pom.xml -Phttp-integration verify
 docker compose -p filo-barberia-test -f compose.yaml -f compose.test.yaml stop
 ```
 

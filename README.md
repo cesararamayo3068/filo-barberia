@@ -2,6 +2,12 @@
 
 Aplicación web para organizar turnos, clientes, servicios y barberos. Desarrollada con **Java, Spring Boot y Angular**, con persistencia en **PostgreSQL**.
 
+## Vista previa
+
+![Agenda semanal de Filo: turnos, barberos e ingresos estimados](docs/images/agenda.jpg)
+
+*Captura de la aplicación con datos de demostración.*
+
 ## Funcionalidades
 
 - Agenda diaria y semanal, con filtro por barbero.
@@ -51,14 +57,15 @@ Los datos se conservan en un volumen de PostgreSQL. Para detener la app sin borr
 ```text
 backend/      API REST, reglas de negocio, seguridad y migraciones
 frontend/     Aplicación Angular y configuración de Nginx
-scripts/      Verificación e integración
 docs/         Documentación técnica y operación
 ```
 
-Cada construcción Docker compila ambas aplicaciones y ejecuta sus pruebas unitarias. Para comprobar la integración en una base aislada, con Python 3 instalado:
+Cada construcción Docker compila ambas aplicaciones y ejecuta sus pruebas unitarias. Las pruebas de integración están escritas en Java y usan un entorno aislado con PostgreSQL. Con Java 21 y Maven instalados:
 
 ```powershell
-./scripts/verify.ps1
+docker compose -p filo-barberia-test -f compose.yaml -f compose.test.yaml up --build -d --wait --wait-timeout 180
+mvn -f backend/pom.xml -Phttp-integration verify
+docker compose -p filo-barberia-test -f compose.yaml -f compose.test.yaml stop
 ```
 
 La integración cubre autenticación, CSRF, fechas pasadas, superposiciones, reservas simultáneas, versiones e historial. GitHub Actions incluye este mismo flujo de verificación.
@@ -69,4 +76,3 @@ Esta versión administra una barbería y un administrador. Las reservas pública
 
 - [API y reglas de turnos](docs/API.md)
 - [Desarrollo, configuración y operación](docs/OPERATIONS.md)
-- [Validaciones realizadas](docs/VALIDATION.md)

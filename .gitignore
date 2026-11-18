@@ -7,4 +7,3 @@ frontend/dist/
 frontend/.angular/
 *.log
 *.dump
-__pycache__/
