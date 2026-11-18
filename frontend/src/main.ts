@@ -1,0 +1,10 @@
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient, withXsrfConfiguration } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeEsAr from '@angular/common/locales/es-AR';
+import { AppComponent } from './app/app.component';
+import { routes } from './app/app.routes';
+registerLocaleData(localeEsAr,'es-AR');
+bootstrapApplication(AppComponent,{providers:[{provide:LOCALE_ID,useValue:'es-AR'},provideBrowserGlobalErrorListeners(),provideRouter(routes),provideHttpClient(withXsrfConfiguration({cookieName:'FILO-XSRF-TOKEN',headerName:'X-XSRF-TOKEN'}))]}).catch(console.error);

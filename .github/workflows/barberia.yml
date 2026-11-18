@@ -1,0 +1,34 @@
+name: Filo Java + Angular
+on:
+  push:
+    paths: ['backend/**', 'frontend/**', 'scripts/**', 'compose*.yaml', '.github/workflows/barberia.yml']
+  pull_request:
+    paths: ['backend/**', 'frontend/**', 'scripts/**', 'compose*.yaml', '.github/workflows/barberia.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+      - name: Crear configuración efímera
+        run: |
+          python3 - <<'PY'
+          import secrets
+          from pathlib import Path
+          Path(".env").write_text("DB_PASSWORD="+secrets.token_hex(24)+"\nADMIN_USERNAME=admin\nADMIN_PASSWORD="+secrets.token_hex(24)+"\nCOOKIE_SECURE=false\n")
+          PY
+      - name: Construir y levantar entorno aislado
+        run: docker compose -p filo-barberia-test -f compose.yaml -f compose.test.yaml up --build -d --wait --wait-timeout 180
+      - name: Probar API, persistencia y concurrencia
+        run: python3 scripts/integration.py
+      - name: Logs si hay errores
+        if: failure()
+        run: docker compose -p filo-barberia-test -f compose.yaml -f compose.test.yaml logs --tail 100
+      - name: Detener entorno
+        if: always()
+        run: docker compose -p filo-barberia-test -f compose.yaml -f compose.test.yaml stop
